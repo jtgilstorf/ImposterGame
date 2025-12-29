@@ -1,117 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Imposter Game</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background:#0d0d0d;
-  color:#eee;
-  text-align:center;
-  padding:20px;
-}
-
-.card {
-  background:#1a1a1a;
-  border-radius:14px;
-  padding:26px;
-  margin-top:25px;
-}
-
-button {
-  padding:14px 22px;
-  margin:10px;
-  font-size:16px;
-  border-radius:12px;
-  border:none;
-}
-
-.primary { background:#d32f2f; color:white; }
-.secondary { background:#444; color:white; }
-
-.hidden { display:none; }
-.big { font-size:22px; }
-.small { opacity:.7; }
-
-select {
-  padding:10px;
-  font-size:16px;
-  border-radius:8px;
-  margin:10px;
-}
-
-#cover {
-  position: fixed;
-  inset: 0;
-  background: black;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  z-index: 999;
-}
+  body {
+    font-family: Arial, sans-serif;
+    background: #0d0d0d;
+    color: #eee;
+    text-align: center;
+    padding: 20px;
+  }
+  .card {
+    background: #1a1a1a;
+    border-radius: 14px;
+    padding: 30px;
+    margin-top: 25px;
+  }
+  button {
+    padding: 14px 24px;
+    margin: 12px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+  }
+  .primary { background: #d32f2f; color: white; }
+  .secondary { background: #444; color: white; }
+  select {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    margin: 10px;
+  }
+  .hidden { display: none; }
+  .big { font-size: 24px; }
+  .small { opacity: 0.7; }
 </style>
 </head>
 
 <body>
 
 <h1>IMPOSTER GAME</h1>
-<p class="small">Select players & imposters · pass the phone</p>
-
+<p class="small">Choose players · hand the phone around</p>
 
 <div id="setup">
-  <label>Players</label><br>
-  <select id="playerCount">
-    <option>3</option>
-    <option selected>4</option>
-    <option>5</option>
-    <option>6</option>
-    <option>7</option>
-    <option>8</option>
-    <option>9</option>
-    <option>10</option>
-  </select><br>
+  <div>
+    <label>Players</label><br>
+    <select id="playerCount">
+      <option>3</option>
+      <option selected>4</option>
+      <option>5</option>
+      <option>6</option>
+      <option>7</option>
+      <option>8</option>
+      <option>9</option>
+      <option>10</option>
+    </select>
+  </div>
 
-  <label>Imposters</label><br>
-  <select id="imposterCount">
-    <option selected>1</option>
-    <option>2</option>
-    <option>3</option>
-  </select><br>
+  <div>
+    <label>Imposters</label><br>
+    <select id="imposterCount">
+      <option selected>1</option>
+      <option>2</option>
+      <option>3</option>
+    </select>
+  </div>
 
-  <button id="startBtn" class="primary">Start Game</button>
+  <button class="primary" onclick="startGame()">Start Game</button>
 </div>
 
-
-<div id="cover" class="hidden">
+<div id="pass" class="hidden">
   <h2>Pass the Phone</h2>
   <p class="small">Tap when ready</p>
-  <button id="revealBtn" class="primary">Reveal</button>
+  <button class="primary" onclick="reveal()">Reveal</button>
 </div>
-
 
 <div id="player" class="hidden">
-  <h2 id="title"></h2>
+  <h2 id="playerTitle"></h2>
   <div class="card">
-    <p id="main" class="big"></p>
-    <p id="sub" class="small"></p>
+    <p id="mainText" class="big"></p>
+    <p id="subText" class="small"></p>
   </div>
-  <button id="passBtn" class="secondary">Hide & Pass</button>
+  <button class="secondary" onclick="hideAndPass()">Hide & Pass</button>
 </div>
-
 
 <div id="end" class="hidden">
   <h2>Discuss · Accuse · Vote</h2>
-  <button id="resetBtn" class="primary">New Round</button>
+  <button class="primary" onclick="resetGame()">New Round</button>
 </div>
 
 <script>
 const people = [
-  // Athletes
   { name: "Tiger Woods", hint: "Athlete: GoAT" },
   { name: "Michael Jordan", hint: "Athlete: Flu" },
   { name: "LeBron James", hint: "Athlete: Longevity" },
@@ -157,8 +140,6 @@ const people = [
   { name: "Russell Westbrook", hint: "Athlete: Triple" },
   { name: "Giannis Antetokounmpo", hint: "Athlete: Greek" },
   { name: "Stephen Curry", hint: "Athlete: Deep" },
-
-  // Singers
   { name: "Taylor Swift", hint: "Singer: Eras" },
   { name: "Adele", hint: "Singer: Voice" },
   { name: "Bruno Mars", hint: "Singer: Planet" },
@@ -196,8 +177,6 @@ const people = [
   { name: "FKA Twigs", hint: "Singer: Dance" },
   { name: "Camila Cabello", hint: "Singer: Heart" },
   { name: "Anitta", hint: "Singer: Brazil" },
-
-  // Actors
   { name: "Leonardo DiCaprio", hint: "Actor: Oscar" },
   { name: "Brad Pitt", hint: "Actor: Leading" },
   { name: "Tom Cruise", hint: "Actor: Stunts" },
@@ -231,8 +210,6 @@ const people = [
   { name: "Margot Robbie", hint: "Actor: Joker" },
   { name: "Tom Hardy", hint: "Actor: Mask" },
   { name: "Chris Pratt", hint: "Actor: Galaxy" },
-
-  // Comedians
   { name: "Dave Chappelle", hint: "Comedian: Pause" },
   { name: "Kevin Hart", hint: "Comedian: Energy" },
   { name: "Chris Rock", hint: "Comedian: Sharp" },
@@ -243,8 +220,6 @@ const people = [
   { name: "Bill Burr", hint: "Comedian: Rant" },
   { name: "Robin Williams", hint: "Comedian: Genie" },
   { name: "Steve Carell", hint: "Comedian: Office" },
-
-  // Social media / Influencers
   { name: "Charli D'Amelio", hint: "Influencer: Dance" },
   { name: "Addison Rae", hint: "Influencer: Lip-sync" },
   { name: "Bella Poarch", hint: "Influencer: Micro" },
@@ -255,8 +230,6 @@ const people = [
   { name: "James Charles", hint: "Influencer: Makeup" },
   { name: "Emma Chamberlain", hint: "Influencer: Vlogs" },
   { name: "Dixie D'Amelio", hint: "Influencer: Song" },
-
-  // Entrepreneurs / Tech
   { name: "Elon Musk", hint: "Entrepreneur: Rockets" },
   { name: "Steve Jobs", hint: "Entrepreneur: Keynote" },
   { name: "Bill Gates", hint: "Entrepreneur: Margins" },
@@ -316,8 +289,6 @@ const people = [
   { name: "Andrea Pirlo", hint: "Athlete: Maestro" },
   { name: "Xavi Hernandez", hint: "Athlete: Control" },
   { name: "Andres Iniesta", hint: "Athlete: Touch" },
-
-  // More Singers
   { name: "Pink", hint: "Singer: Acrobat" },
   { name: "Celine Dion", hint: "Singer: Titanic" },
   { name: "Whitney Houston", hint: "Singer: Powerful" },
@@ -362,8 +333,6 @@ const people = [
   { name: "Joe Jonas", hint: "Singer: Sibling" },
   { name: "Khalid", hint: "Singer: Young" },
   { name: "Post Malone", hint: "Singer: Tattoos" },
-
-  // More Actors
   { name: "Keanu Reeves", hint: "Actor: Matrix" },
   { name: "Samuel L. Jackson", hint: "Actor: Snakes" },
   { name: "Vin Diesel", hint: "Actor: Fast" },
@@ -459,87 +428,62 @@ const people = [
   { name: "Sonic", hint: "Fictional Character: Speed" },
 ];
 
-const setup = document.getElementById("setup");
-const cover = document.getElementById("cover");
-const player = document.getElementById("player");
-const end = document.getElementById("end");
+  let roles = [];
+  let currentPlayer = 0;
+  let selectedPerson = null;
 
-const playerCount = document.getElementById("playerCount");
-const imposterCount = document.getElementById("imposterCount");
+  function startGame() {
+    const players = parseInt(playerCount.value);
+    const imposters = parseInt(imposterCount.value);
 
-const title = document.getElementById("title");
-const main = document.getElementById("main");
-const sub = document.getElementById("sub");
+    if (imposters >= players) {
+      alert("Imposters must be fewer than players");
+      return;
+    }
 
-const startBtn = document.getElementById("startBtn");
-const revealBtn = document.getElementById("revealBtn");
-const passBtn = document.getElementById("passBtn");
-const resetBtn = document.getElementById("resetBtn");
+    selectedPerson = people[Math.floor(Math.random() * people.length)];
+    roles = [];
+    currentPlayer = 0;
 
-let roles = [];
-let index = 0;
-let selected = null;
+    for (let i = 0; i < players - imposters; i++) roles.push("KNOWN");
+    for (let i = 0; i < imposters; i++) roles.push("IMPOSTER");
 
-startBtn.onclick = startGame;
-revealBtn.onclick = reveal;
-passBtn.onclick = hideAndPass;
-resetBtn.onclick = reset;
+    roles.sort(() => Math.random() - 0.5);
 
-function startGame(){
-  const p = Number(playerCount.value);
-  const imp = Number(imposterCount.value);
-
-  if(imp >= p){
-    alert("Imposters must be fewer than players");
-    return;
+    setup.classList.add("hidden");
+    pass.classList.remove("hidden");
   }
 
-  selected = people[Math.floor(Math.random() * people.length)];
-  roles = [];
+  function reveal() {
+    pass.classList.add("hidden");
+    player.classList.remove("hidden");
 
-  for(let i=0;i<p-imp;i++) roles.push("KNOWN");
-  for(let i=0;i<imp;i++) roles.push("IMPOSTER");
+    playerTitle.innerText = "Player " + (currentPlayer + 1);
 
-  roles.sort(() => Math.random() - 0.5);
-  index = 0;
-
-  setup.classList.add("hidden");
-  cover.classList.remove("hidden");
-}
-
-function reveal(){
-  cover.classList.add("hidden");
-  showPlayer();
-}
-
-function showPlayer(){
-  player.classList.remove("hidden");
-  title.innerText = "Player " + (index + 1);
-
-  if(roles[index] === "KNOWN"){
-    main.innerText = selected.name;
-    sub.innerText = "You know the person.";
-  } else {
-    main.innerText = "IMPOSTER";
-    sub.innerText = selected.hint;
+    if (roles[currentPlayer] === "KNOWN") {
+      mainText.innerText = selectedPerson.name;
+      subText.innerText = "You know the person.";
+    } else {
+      mainText.innerText = "IMPOSTER";
+      subText.innerText = selectedPerson.hint;
+    }
   }
-}
 
-function hideAndPass(){
-  player.classList.add("hidden");
-  index++;
+  function hideAndPass() {
+    player.classList.add("hidden");
+    currentPlayer++;
 
-  if(index >= roles.length){
-    end.classList.remove("hidden");
-  } else {
-    cover.classList.remove("hidden");
+    if (currentPlayer >= roles.length) {
+      end.classList.remove("hidden");
+    } else {
+      pass.classList.remove("hidden");
+    }
   }
-}
 
-function reset(){
-  end.classList.add("hidden");
-  setup.classList.remove("hidden");
-}
+  function resetGame() {
+    end.classList.add("hidden");
+    setup.classList.remove("hidden");
+  }
 </script>
 
 </body>
