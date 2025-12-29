@@ -33,7 +33,6 @@ button {
 .secondary { background:#444; color:white; }
 
 .hidden { display:none; }
-
 .big { font-size:22px; }
 .small { opacity:.7; }
 
@@ -44,7 +43,6 @@ select {
   margin:10px;
 }
 
-/* FULL SCREEN COVER */
 #cover {
   position: fixed;
   inset: 0;
@@ -64,48 +62,40 @@ select {
 <h1>IMPOSTER GAME</h1>
 <p class="small">Choose players & imposters · phone safe</p>
 
-<!-- SETUP -->
 <div id="setup">
-  <div>
-    <label>Players</label><br>
-    <select id="playerCount">
-      <option>3</option><option selected>4</option><option>5</option>
-      <option>6</option><option>7</option><option>8</option>
-      <option>9</option><option>10</option>
-    </select>
-  </div>
+  <label>Players</label><br>
+  <select id="playerCount">
+    <option>3</option><option selected>4</option><option>5</option>
+    <option>6</option><option>7</option><option>8</option>
+    <option>9</option><option>10</option>
+  </select><br>
 
-  <div>
-    <label>Imposters</label><br>
-    <select id="imposterCount">
-      <option selected>1</option><option>2</option><option>3</option>
-    </select>
-  </div>
+  <label>Imposters</label><br>
+  <select id="imposterCount">
+    <option selected>1</option><option>2</option><option>3</option>
+  </select><br>
 
-  <button class="primary" onclick="startGame()">Start</button>
+  <button class="primary">Start</button>
 </div>
 
-<!-- COVER -->
 <div id="cover" class="hidden">
   <h2>Pass the Phone</h2>
-  <p class="small">Next player tap reveal</p>
-  <button class="primary" onclick="reveal()">Reveal</button>
+  <p class="small">Tap reveal when ready</p>
+  <button class="primary">Reveal</button>
 </div>
 
-<!-- PLAYER VIEW -->
 <div id="player" class="hidden">
   <h2 id="title"></h2>
   <div class="card">
     <p id="main" class="big"></p>
     <p id="sub" class="small"></p>
   </div>
-  <button class="secondary" onclick="hideAndPass()">Hide & Pass</button>
+  <button class="secondary">Hide & Pass</button>
 </div>
 
-<!-- END -->
 <div id="end" class="hidden">
   <h2>Discuss · Accuse · Vote</h2>
-  <button class="primary" onclick="reset()">New Round</button>
+  <button class="primary">New Round</button>
 </div>
 
 <script>
@@ -460,9 +450,33 @@ const people = [
 ];
 
 
+const setup = document.getElementById("setup");
+const cover = document.getElementById("cover");
+const player = document.getElementById("player");
+const end = document.getElementById("end");
+
+const playerCount = document.getElementById("playerCount");
+const imposterCount = document.getElementById("imposterCount");
+
+const title = document.getElementById("title");
+const main = document.getElementById("main");
+const sub = document.getElementById("sub");
+
+const startBtn = setup.querySelector("button");
+const revealBtn = cover.querySelector("button");
+const passBtn = player.querySelector("button");
+const resetBtn = end.querySelector("button");
+
+
 let roles = [];
-let i = 0;
+let index = 0;
 let selected = null;
+
+
+startBtn.onclick = startGame;
+revealBtn.onclick = reveal;
+passBtn.onclick = hideAndPass;
+resetBtn.onclick = reset;
 
 function startGame(){
   const p = parseInt(playerCount.value);
@@ -473,14 +487,14 @@ function startGame(){
     return;
   }
 
-  selected = people[Math.floor(Math.random() * people.length)];
+  selected = people[Math.floor(Math.random()*people.length)];
   roles = [];
 
-  for(let x=0; x<p-imp; x++) roles.push("KNOWN");
-  for(let x=0; x<imp; x++) roles.push("IMPOSTER");
+  for(let i=0;i<p-imp;i++) roles.push("KNOWN");
+  for(let i=0;i<imp;i++) roles.push("IMPOSTER");
 
-  roles.sort(() => Math.random() - 0.5);
-  i = 0;
+  roles.sort(()=>Math.random()-0.5);
+  index = 0;
 
   setup.classList.add("hidden");
   cover.classList.remove("hidden");
@@ -493,9 +507,9 @@ function reveal(){
 
 function show(){
   player.classList.remove("hidden");
-  title.innerText = "Player " + (i+1);
+  title.innerText = `Player ${index+1}`;
 
-  if(roles[i] === "KNOWN"){
+  if(roles[index] === "KNOWN"){
     main.innerText = selected.name;
     sub.innerText = "You know the person.";
   } else {
@@ -506,10 +520,9 @@ function show(){
 
 function hideAndPass(){
   player.classList.add("hidden");
-  i++;
+  index++;
 
-  if(i >= roles.length){
-    cover.classList.add("hidden");
+  if(index >= roles.length){
     end.classList.remove("hidden");
   } else {
     cover.classList.remove("hidden");
